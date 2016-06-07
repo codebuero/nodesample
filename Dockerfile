@@ -1,4 +1,4 @@
-FROM andirotter/mininode:0.0.1
+FROM andirotter/mininode:0.1.0
 
 WORKDIR /opt/nodesample		
 
