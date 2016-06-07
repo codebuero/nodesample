@@ -1,6 +1,6 @@
 # nodesample
 
-Repo for hub.docker.com/andirotter/nodesample
+Repo for hub.docker.com/r/andirotter/nodesample
 
 ## Content
 
