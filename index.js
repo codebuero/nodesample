@@ -5,9 +5,11 @@ var app = express();
 var Chance = require('chance');
 var chance = new Chance();
 var bodyParser = require('body-parser');
+var expressValidator = require('express-validator');
 
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json());
+app.use(expressValidator());
 
 var o = new Map();
 
@@ -57,6 +59,24 @@ app.get('/add', function (req, res) {
 });
 
 app.post('/add', function (req, res) {
+
+  req.checkBody({
+    'name': {
+      isAlpha: true
+    },
+    'url': {
+      isAlpha: true
+    },
+    'twitter': {
+      isAlpha: true
+    }
+  });
+
+  let errors = req.validationErrors();
+  if (errors) {
+    return res.send('<html><a href="/">Back</a><br>There have been validation errors: <br>' + JSON.stringify(errors, null, '\n') + '</html>');
+  }
+
   if (req.body && req.body.name && req.body.url && req.body.twitter) {
     let newId = o.size + 1;
     o.set(newId, req.body);
