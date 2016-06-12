@@ -8,47 +8,55 @@ const express = require('express'),
 
 var chance = new Chance();
 
-app.set('view engine', 'jade')
-app.set('views', './views')
-app.use(bodyParser.urlencoded({ extended: false }))
-app.use(bodyParser.json());
-app.use(expressValidator());
-
 var _createNewUserMap = function(size) {
   let _size = size || 4;
   let _o = new Map();
 
   while(_o.size < _size) {
-    let t = { name: chance.name().toLowerCase(),
-              url: chance.url(),
-              twitter: chance.twitter()
+    let _n = chance.name().toLowerCase();
+    let _t = { name: _n,
+              url: `https://${chance.domain()}`,
+              twitter: `@${_n}`.replace(' ', '_')
             };
-    _o.set(_o.size, t);
+    _o.set(_o.size, _t);
   } 
   return _o;
 }
 
-var o = _createNewUserMap();  
+var dataSource = _createNewUserMap(10);  
+
+app.set('view engine', 'pug')
+app.set('views', './views')
+app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.json());
+app.use(expressValidator({
+ customValidators: {
+    inInterval: function(param, lower, upper) {
+      return lower <= param && param < upper;
+    }
+ }
+}));
 
 app.get('/', function (req, res) {
   res.status(200).render('index');
 });
 
 app.get('/list', function (req, res) {
-  let userlist = Array.from(o).map((v) => {return v[1];});
+  let userlist = Array.from(dataSource).map((v) => {return v[1];});
   res.status(200).render('list', {userlist});
 });
 
 app.get('/list/:id', function (req, res) {
-  req.checkParam({
-    'id': {
-      isNumeric: true
-    }
-  });
+  req.checkParams('id').notEmpty().isInt().inInterval(0, dataSource.size);
+
   let errors = req.validationErrors();
+
   if (errors) {
-    return res.render('error', {errors});
+    return res.status(404).render('error', {errors});
   }
+
+  req.sanitizeParams('id').toInt();
+  let currentUser = dataSource.get(req.params.id)
   return res.status(200).render('single', {currentUser});
 });
 
@@ -74,9 +82,7 @@ app.post('/add', function (req, res) {
   if (errors) {
     return res.render('error', {errors});
   }
-  
-  let newId = o.size + 1;
-  o.set(newId, req.body);
+  dataSource.set(o.size, req.body);
 
   res.redirect('/list');
 });
