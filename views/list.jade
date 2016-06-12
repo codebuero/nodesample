@@ -1,0 +1,11 @@
+extends ./master.jade
+
+block content
+  a(href="/") Back
+  dl
+    each user, id in userlist
+      - var link = "/list/" + id
+      dt
+        a(href=link)= user.name
+      dd= user.url
+      dd= user.twitter

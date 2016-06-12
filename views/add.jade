@@ -1,0 +1,12 @@
+extends ./master.jade
+
+block content
+  a(href="/") Back
+  form(method="post",action="/add")
+    label Name:
+      input(type="text",name="name")
+    label Website:
+      input(type="text",name="url")
+    label Twitter:
+      input(type="text",name="twitter")
+    input(type="submit", value="Submit")

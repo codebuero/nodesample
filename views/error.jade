@@ -1,0 +1,6 @@
+extends ./master.jade
+
+block content
+  ul
+  each error in errors
+    li= error.param + ' - ' + error.msg
